@@ -17,5 +17,8 @@
 /vehiculos.html    /vehiculos      301
 /offline.html      /offline        301
 
+# Redirigir la raíz al archivo index.html
+/                 /index.html     200
+
 # Servir .html cuando acceden sin extensión
 /*                 /:splat.html    200
