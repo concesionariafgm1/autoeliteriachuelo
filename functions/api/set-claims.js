@@ -1,1 +1,0 @@
-// Archivo movido a admin-tools/archived-functions para evitar conflictos con Cloudflare Pages.
