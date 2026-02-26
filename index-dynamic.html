@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="max-age=31536000">
+  
+  <!-- Meta dinámicos (se inyectan desde JS) -->
+  <meta name="description" content="Cargando...">
+  <meta name="theme-color" content="#E50914">
+  
+  <title>Cargando...</title>
+  
+  <!-- Estilos -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preload" href="/css/style.css" as="style">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="manifest" href="/manifest.json">
+  
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-43YLL7CET5"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-43YLL7CET5');
+  </script>
+  
+  <!-- Estilos inline mínimos para evitar FOUC -->
+  <style>
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'Inter',sans-serif;background-color:#0A0A0A;color:#FFFFFF;line-height:1.6;overflow-x:hidden}
+    .navbar{position:fixed;top:0;left:0;width:100%;z-index:1000;background:rgba(10,10,10,0.95);backdrop-filter:blur(10px);border-bottom:1px solid rgba(229,9,20,0.15)}
+    .navbar .container{display:flex;align-items:center;justify-content:space-between;height:70px}
+    .container{width:100%;max-width:1200px;margin:0 auto;padding:0 20px}
+    #pageContent{padding-top:70px}
+    .section-error{padding:20px;margin:20px;background-color:#fee;border:1px solid #f99;border-radius:4px;color:#c33}
+  </style>
+</head>
+<body>
+
+  <!-- ============================================
+       NAVBAR (placeholder, será generada desde settings)
+       ============================================ -->
+  <nav class="navbar" id="navbar" role="navigation" aria-label="Navegación principal">
+    <div class="container">
+      <a href="/" class="navbar-brand" aria-label="Inicio">
+        <span class="navbar-brand-fallback">CARGANDO...</span>
+      </a>
+      <ul class="navbar-menu" role="menubar">
+        <li role="none"><a href="/" role="menuitem">Inicio</a></li>
+      </ul>
+      <button class="hamburger" aria-label="Menú">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ============================================
+       PAGE CONTENT (se carga dinámicamente)
+       ============================================ -->
+  <main id="pageContent">
+    <section style="padding: 80px 20px; text-align: center;">
+      <div class="container" style="max-width: 600px; margin: 0 auto;">
+        <p style="font-size: 18px; color: #999;">Cargando página...</p>
+      </div>
+    </section>
+  </main>
+
+  <!-- ============================================
+       FOOTER (placeholder, será generada desde settings)
+       ============================================ -->
+  <footer id="footer" class="footer" role="contentinfo">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-col">
+          <div class="footer-brand">CARGANDO...</div>
+          <p>Sitio web en construcción.</p>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2025. Todos los derechos reservados.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ============================================
+       WHATSAPP FLOATING BUTTON (si existe en config)
+       ============================================ -->
+  <a id="whatsappFloat" href="#" class="whatsapp-float" target="_blank" rel="noopener" aria-label="WhatsApp" style="display: none;">
+    <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+      <path d="M16.004 0h-.008C7.174 0 0 7.176 0 16c0 3.5 1.13 6.742 3.05 9.378L1.054 31.29l6.172-1.972A15.89 15.89 0 0016.004 32C24.826 32 32 24.822 32 16S24.826 0 16.004 0zm9.32 22.608c-.39 1.1-1.932 2.012-3.182 2.278-.856.18-1.974.324-5.738-1.232-4.812-1.99-7.906-6.872-8.148-7.192-.23-.32-1.936-2.578-1.936-4.916s1.226-3.486 1.662-3.964c.436-.478.952-.598 1.27-.598.316 0 .63.002.906.016.29.016.68-.11 1.064.812.39.94 1.326 3.238 1.442 3.472.116.234.194.508.04.812-.156.318-.234.514-.468.792-.234.278-.492.622-.702.834-.234.234-.478.49-.206.962.272.472 1.212 2 2.602 3.238 1.786 1.592 3.292 2.084 3.764 2.318.472.234.748.196 1.022-.118.278-.318 1.178-1.372 1.492-1.844.314-.472.628-.39 1.062-.234.436.156 2.764 1.304 3.236 1.54.472.234.788.352.904.548.118.196.118 1.13-.272 2.228z"/>
+    </svg>
+  </a>
+
+  <!-- ============================================
+       SCRIPTS - Inicialización modular
+       ============================================ -->
+  
+  <!-- Config estático (fallback) -->
+  <script src="/config/config.js"></script>
+  <script src="/config/site.js"></script>
+  
+  <!-- Firebase config (must load before firebase.js module) -->
+  <script src="/assets/config/firebase-config.js"></script>
+  
+  <!-- Firebase -->
+  <script type="module" src="/js/firebase.js"></script>
+  
+  <!-- Tenant resolution -->
+  <script type="module" src="/js/tenant.js"></script>
+  
+  <!-- Data layer -->
+  <script type="module" src="/js/dataLayer.js"></script>
+  
+  <!-- Section rendering -->
+  <script type="module" src="/js/sectionRenderer.js"></script>
+  
+  <!-- Page routing -->
+  <script type="module">
+    import { initPageRouter } from "/js/pageRouter.js";
+    
+    // Ejecutar después del DOM
+    document.addEventListener("DOMContentLoaded", async function() {
+      await initPageRouter();
+    });
+  </script>
+  
+  <!-- Main.js - UI general (navbar, animations, etc.) -->
+  <script type="module" src="/js/main.js" defer></script>
+  
+  <!-- Service Worker -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        navigator.serviceWorker.register('sw.js').catch(function() {});
+      });
+    }
+  </script>
+
+</body>
+</html>

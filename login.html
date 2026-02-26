@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Login - AutoElite Concesionaria">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Login | AutoElite</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <section class="admin-login" id="loginSection">
+    <div class="login-box">
+      <h2>Panel <span>Admin</span></h2>
+      <p style="text-align: center; color: var(--color-gray); font-size: 0.85rem; margin-bottom: 25px;">
+        Ingresá tus credenciales para acceder al panel de administración.
+      </p>
+      <div class="login-error" id="loginError">Usuario o contraseña incorrectos.</div>
+      <form id="loginForm">
+        <div class="form-group">
+          <label for="loginEmail">Email</label>
+          <input type="email" id="loginEmail" placeholder="Ingresá tu email" required autocomplete="username">
+        </div>
+        <div class="form-group">
+          <label for="loginPass">Contraseña</label>
+          <input type="password" id="loginPass" placeholder="Ingresá tu contraseña" required autocomplete="current-password">
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%;">Iniciar Sesión</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- Config (debe ir ANTES de cualquier módulo que importe firebase.js) -->
+  <script src="/assets/config/firebase-config.js"></script>
+  <script src="/config/site.js"></script>
+  <script src="/js/staging.js"></script>
+  <script type="module" src="/js/login.js"></script>
+</body>
+</html>

@@ -1,0 +1,24 @@
+{
+  "name": "AutoElite - Concesionaria de Autos en Corrientes Capital",
+  "short_name": "AutoElite",
+  "description": "Concesionaria de autos en Corrientes Capital. Compra y venta de vehículos usados y 0km.",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#0A0A0A",
+  "theme_color": "#E50914",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/assets/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/assets/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

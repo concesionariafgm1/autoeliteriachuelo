@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="max-age=31536000">
+  <meta name="description" content="Concesionaria de autos en Corrientes Capital. Compra y venta de vehículos usados y 0km. Chevrolet, Fiat y más.">
+  <meta name="keywords" content="concesionaria corrientes, compra venta autos corrientes, autos usados en corrientes capital, chevrolet usados corrientes, fiat usados corrientes">
+  <meta name="author" content="AutoElite">
+  <meta name="theme-color" content="#E50914">
+  <title>Compra y Venta de Autos en Corrientes Capital | Concesionaria</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preload" href="/css/style.css" as="style">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="manifest" href="/manifest.json">
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-43YLL7CET5"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-43YLL7CET5');
+  </script>
+  <style>
+    /* Critical CSS - above the fold */
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'Inter',sans-serif;background-color:#0A0A0A;color:#FFFFFF;line-height:1.6;overflow-x:hidden}
+    .navbar{position:fixed;top:0;left:0;width:100%;z-index:1000;background:rgba(10,10,10,0.95);backdrop-filter:blur(10px);border-bottom:1px solid rgba(229,9,20,0.15)}
+    .navbar .container{display:flex;align-items:center;justify-content:space-between;height:70px}
+    .container{width:100%;max-width:1200px;margin:0 auto;padding:0 20px}
+    .hero{min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;background:linear-gradient(135deg,#0A0A0A 0%,#141414 50%,#1a0508 100%)}
+  </style>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "AutoDealer",
+    "name": "AutoElite",
+    "description": "Concesionaria de autos en Corrientes Capital. Compra y venta de vehículos usados y 0km.",
+    "url": "https://example.com",
+    "telephone": "+54-379-4286684",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "Avenida Independencia 3047",
+      "addressLocality": "Corrientes Capital",
+      "addressRegion": "Corrientes",
+      "addressCountry": "AR"
+    },
+    "geo": {
+      "@type": "GeoCoordinates",
+      "latitude": "-27.4678",
+      "longitude": "-58.8344"
+    },
+    "openingHoursSpecification": [
+      {
+        "@type": "OpeningHoursSpecification",
+        "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday"],
+        "opens": "09:00",
+        "closes": "18:00"
+      },
+      {
+        "@type": "OpeningHoursSpecification",
+        "dayOfWeek": "Saturday",
+        "opens": "09:00",
+        "closes": "13:00"
+      }
+    ]
+  }
+  </script>
+</head>
+<body>
+  <div id="site-header"></div>
+  <main id="site-main"></main>
+  <div id="site-footer"></div>
+
+  <!-- Config (NO módulo): debe cargarse antes que los módulos -->
+  <script src="/assets/config/firebase-config.js"></script>
+  <script src="/config/site.js"></script>
+  <script src="/js/staging.js"></script>
+
+  <!-- App (módulos) -->
+  <script type="module" src="/js/site/main.js"></script>
+  <!-- Data: vehículos (carga y modal) -->
+  <script type="module" src="/js/vehicles.js"></script>
+</body>
+</html>

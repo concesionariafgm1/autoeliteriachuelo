@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Panel de administración - AutoElite Concesionaria">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Admin | AutoElite - Panel de Administración</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    /* ============================================
+       ADMIN-SPECIFIC STYLES (inline para admin.html)
+       ============================================ */
+
+    /* Dashboard Stats */
+    .admin-stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 15px;
+      margin-bottom: 30px;
+    }
+    @media (min-width: 768px) {
+      .admin-stats { grid-template-columns: repeat(4, 1fr); }
+    }
+    .admin-stat-card {
+      background: var(--color-dark);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      text-align: center;
+      transition: var(--transition);
+    }
+    .admin-stat-card:hover {
+      border-color: rgba(229,9,20,0.3);
+    }
+    .admin-stat-number {
+      font-family: var(--font-heading);
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--color-primary);
+      display: block;
+    }
+    .admin-stat-label {
+      font-size: 0.75rem;
+      color: var(--color-gray);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-top: 5px;
+    }
+
+    /* Admin Section Divider */
+    .admin-section-title {
+      font-family: var(--font-body);
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .admin-section-title .badge {
+      font-size: 0.65rem;
+      background: var(--color-primary);
+      color: white;
+      padding: 3px 8px;
+      border-radius: 50px;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+    }
+
+    /* Form field hint */
+    .field-hint {
+      font-size: 0.75rem;
+      color: var(--color-gray);
+      margin-top: 4px;
+    }
+
+    /* Image upload enhanced */
+    .image-upload-area {
+      position: relative;
+      min-height: 100px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .image-upload-area .upload-icon {
+      font-size: 2rem;
+      opacity: 0.5;
+    }
+    .image-upload-area .upload-text {
+      font-size: 0.85rem;
+      color: var(--color-gray);
+    }
+    .image-upload-area .upload-hint {
+      font-size: 0.72rem;
+      color: var(--color-dark-3);
+    }
+    .image-upload-area.drag-over {
+      border-color: var(--color-primary) !important;
+      background: rgba(229,9,20,0.05);
+    }
+
+    /* Count badge in table title */
+    .vehicle-count-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 26px;
+      height: 26px;
+      background: var(--color-primary);
+      color: white;
+      border-radius: 50%;
+      font-size: 0.75rem;
+      font-weight: 600;
+      margin-left: 8px;
+    }
+
+    /* Editing indicator */
+    .editing-indicator {
+      display: none;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      background: rgba(255,193,7,0.1);
+      border: 1px solid rgba(255,193,7,0.3);
+      border-radius: var(--radius-sm);
+      margin-bottom: 15px;
+      font-size: 0.85rem;
+      color: var(--color-warning);
+    }
+    .editing-indicator.show {
+      display: flex;
+    }
+    .editing-indicator .cancel-edit {
+      margin-left: auto;
+      cursor: pointer;
+      font-weight: 600;
+      opacity: 0.7;
+      transition: var(--transition);
+    }
+    .editing-indicator .cancel-edit:hover {
+      opacity: 1;
+    }
+
+    /* Admin table row highlight on editing */
+    .admin-table tbody tr.editing {
+      background: rgba(255,193,7,0.08);
+      border-left: 3px solid var(--color-warning);
+    }
+
+    /* Preview specs mini-grid */
+    .preview-specs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      margin-top: 10px;
+      padding: 10px;
+      background: rgba(255,255,255,0.02);
+      border-radius: var(--radius-sm);
+    }
+    .preview-spec {
+      font-size: 0.72rem;
+    }
+    .preview-spec-label {
+      color: var(--color-gray);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-size: 0.65rem;
+    }
+    .preview-spec-value {
+      color: var(--color-light-gray);
+      font-weight: 500;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ============================================
+       NAVBAR
+       ============================================ -->
+  <nav class="navbar">
+    <div class="container">
+      <a href="index.html" class="navbar-brand">Auto<span>Elite</span></a>
+      <ul class="navbar-menu">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="vehiculos.html">Vehículos</a></li>
+        <li><a href="nosotros.html">Nosotros</a></li>
+        <li><a href="contacto.html#ubicacion">Ubicación</a></li>
+        <li><a href="contacto.html">Contacto</a></li>
+        <li><a href="admin.html" class="active" style="color: var(--color-primary);">Admin</a></li>
+      </ul>
+      <button class="hamburger" aria-label="Menú">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ============================================
+       LOGIN SECTION
+       ============================================ -->
+  <section class="admin-login" id="loginSection">
+    <div class="login-box">
+      <h2>Panel <span>Admin</span></h2>
+      <p style="text-align: center; color: var(--color-gray); font-size: 0.85rem; margin-bottom: 25px;">
+        Ingresá tus credenciales para acceder al panel de administración.
+      </p>
+      <div class="login-error" id="loginError">Usuario o contraseña incorrectos.</div>
+      <form id="loginForm">
+        <div class="form-group">
+          <label for="loginUser">Usuario</label>
+          <input type="text" id="loginUser" placeholder="Ingresá tu usuario" required autocomplete="username">
+        </div>
+        <div class="form-group">
+          <label for="loginPass">Contraseña</label>
+          <input type="password" id="loginPass" placeholder="Ingresá tu contraseña" required autocomplete="current-password">
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%;">Iniciar Sesión</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- ============================================
+       ADMIN PANEL (oculto hasta login exitoso)
+       ============================================ -->
+  <section class="admin-panel" id="adminPanel">
+    <div class="container">
+
+      <!-- Header del admin -->
+      <div class="admin-header">
+        <h2>Panel de <span>Administración</span></h2>
+        <div style="display: flex; gap: 10px; align-items: center;">
+          <a href="vehiculos.html" class="btn btn-outline btn-sm">Ver Sitio</a>
+          <button class="btn btn-primary btn-sm" id="logoutBtn">Cerrar Sesión</button>
+        </div>
+      </div>
+
+      <!-- ============================================
+           DASHBOARD STATS
+           ============================================ -->
+      <div class="admin-stats" id="adminStats">
+        <div class="admin-stat-card">
+          <span class="admin-stat-number" id="statTotal">0</span>
+          <span class="admin-stat-label">Total Vehículos</span>
+        </div>
+        <div class="admin-stat-card">
+          <span class="admin-stat-number" id="statUsados">0</span>
+          <span class="admin-stat-label">Usados</span>
+        </div>
+        <div class="admin-stat-card">
+          <span class="admin-stat-number" id="stat0km">0</span>
+          <span class="admin-stat-label">0km</span>
+        </div>
+        <div class="admin-stat-card">
+          <span class="admin-stat-number" id="statMarcas">0</span>
+          <span class="admin-stat-label">Marcas</span>
+        </div>
+      </div>
+
+      <div class="admin-content">
+
+        <!-- ============================================
+             CONFIGURACIÓN DE CONTACTO/REDES SOCIALES
+             ============================================ -->
+        <div class="admin-form-card">
+          <h3 class="admin-section-title">
+            Datos de Contacto y Redes Sociales
+          </h3>
+
+          <form id="configForm">
+            <div class="admin-form-grid">
+              <!-- Email -->
+              <div class="form-group">
+                <label for="configEmail">Email</label>
+                <input type="email" id="configEmail" placeholder="contacto@ejemplo.com">
+              </div>
+
+              <!-- Teléfono/WhatsApp -->
+              <div class="form-group">
+                <label for="configPhone">Teléfono/WhatsApp</label>
+                <input type="tel" id="configPhone" placeholder="543794286684">
+                <div class="field-hint">Sin espacios ni símbolos. Ej: 543794286684</div>
+              </div>
+
+              <!-- Dirección -->
+              <div class="form-group">
+                <label for="configAddress">Dirección</label>
+                <input type="text" id="configAddress" placeholder="Corrientes, Argentina">
+              </div>
+
+              <!-- Instagram -->
+              <div class="form-group">
+                <label for="configInstagram">Instagram URL</label>
+                <input type="text" id="configInstagram" placeholder="https://instagram.com/tuusuario">
+                <div class="field-hint">Ej: https://instagram.com/tuusuario o @tuusuario</div>
+              </div>
+            </div>
+
+            <!-- Botón guardar -->
+            <div class="admin-form-actions">
+              <button type="button" class="btn btn-primary" id="btnSaveConfig">Guardar Configuración</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- ============================================
+             FORMULARIO DE VEHÍCULOS
+             ============================================ -->
+        <div class="admin-form-card">
+          <h3 class="admin-section-title">
+            Gestión de Vehículos
+            <span class="badge" id="formModeBadge">CREAR</span>
+          </h3>
+
+          <!-- Indicador de edición -->
+          <div class="editing-indicator" id="editingIndicator">
+            <span>Editando: <strong id="editingName">---</strong></span>
+            <span class="cancel-edit" id="cancelEdit">&times; Cancelar</span>
+          </div>
+
+          <!-- Error messages container -->
+          <div id="adminFormErrors" style="display:none; margin-bottom:20px; padding:15px; background:#fee; border:1px solid #f5a7a0; border-radius: var(--radius-md); color:#c33;">
+            <strong style="display:block; margin-bottom:8px;">⚠️ Faltan campos requeridos:</strong>
+            <ul id="adminErrorsList" style="margin:0; padding-left:20px; font-size:0.9rem;"></ul>
+          </div>
+
+          <form id="adminVehicleForm">
+            <input type="hidden" id="editingId" value="">
+
+            <div class="admin-form-grid">
+              <!-- Marca -->
+              <div class="form-group">
+                <label for="adminMarca">Marca *</label>
+                <input type="text" id="adminMarca" placeholder="Ej: Chevrolet" required>
+              </div>
+              <!-- Modelo -->
+              <div class="form-group">
+                <label for="adminModelo">Modelo *</label>
+                <input type="text" id="adminModelo" placeholder="Ej: Onix" required>
+              </div>
+              <!-- Año -->
+              <div class="form-group">
+                <label for="adminAño">Año *</label>
+                <input type="number" id="adminAño" placeholder="Ej: 2024" min="1990" max="2030" required>
+              </div>
+              <!-- Kilometraje -->
+              <div class="form-group">
+                <label for="adminKm">Kilometraje</label>
+                <input type="number" id="adminKm" placeholder="Ej: 15000" min="0" value="0">
+                <span class="field-hint">Dejá en 0 para vehículos 0km</span>
+              </div>
+              <!-- Precio -->
+              <div class="form-group">
+                <label for="adminPrecio">Precio (ARS) *</label>
+                <input type="number" id="adminPrecio" placeholder="Ej: 18500000" min="0" required>
+              </div>
+              <!-- Estado -->
+              <div class="form-group">
+                <label for="adminEstado">Estado</label>
+                <select id="adminEstado">
+                  <option value="Usado">Usado</option>
+                  <option value="0km">0km</option>
+                </select>
+              </div>
+              <!-- Motor -->
+              <div class="form-group">
+                <label for="adminMotor">Motor</label>
+                <input type="text" id="adminMotor" placeholder="Ej: 1.2L Turbo">
+              </div>
+              <!-- Transmisión -->
+              <div class="form-group">
+                <label for="adminTransmision">Transmisión</label>
+                <select id="adminTransmision">
+                  <option value="Manual">Manual</option>
+                  <option value="Automática">Automática</option>
+                </select>
+              </div>
+              <!-- Combustible -->
+              <div class="form-group">
+                <label for="adminCombustible">Combustible</label>
+                <select id="adminCombustible">
+                  <option value="Nafta">Nafta</option>
+                  <option value="Diesel">Diesel</option>
+                  <option value="GNC">GNC</option>
+                  <option value="Híbrido">Híbrido</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Upload de imágenes -->
+            <div class="form-group" style="margin-top: 20px;">
+              <label>Imágenes del vehículo</label>
+              <div class="image-upload-area" id="imageUploadArea">
+                <span class="upload-icon">📷</span>
+                <span class="upload-text">Hacé click o arrastrá imágenes aquí</span>
+                <span class="upload-hint">JPG, PNG, WEBP — Se convierten a base64</span>
+                <input type="file" id="adminImages" accept="image/*" multiple>
+              </div>
+              <div class="image-preview-grid" id="imagePreviewGrid"></div>
+            </div>
+
+            <!-- Botones de acción -->
+            <div class="admin-form-actions">
+              <button type="button" class="btn btn-success" id="btnCrear">Crear Vehículo</button>
+              <button type="button" class="btn btn-warning" id="btnEditar" style="display:none;">Guardar Cambios</button>
+              <button type="button" class="btn btn-outline btn-sm" id="btnLimpiar">Limpiar</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- ============================================
+             LIVE PREVIEW
+             ============================================ -->
+        <div class="admin-preview">
+          <h3 class="admin-section-title">Vista Previa</h3>
+          <div id="previewContainer">
+            <p style="color: var(--color-gray); text-align: center; padding: 40px 0;">
+              Completá los campos para ver la vista previa del vehículo.
+            </p>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ============================================
+           TABLA DE VEHÍCULOS
+           ============================================ -->
+      <div class="admin-table-card" style="margin-top: 30px;">
+        <h3 class="admin-section-title">
+          Vehículos Cargados
+          <span class="vehicle-count-badge" id="vehicleCountBadge">0</span>
+        </h3>
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Imagen</th>
+              <th>Vehículo</th>
+              <th>Año</th>
+              <th>Km</th>
+              <th>Precio</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="vehicleTableBody">
+            <!-- Se carga dinámicamente desde admin.js -->
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Scripts: vehicles.js primero (CRUD + data), luego main.js (UI), luego admin.js (admin logic) -->
+  <script src="/assets/config/firebase-config.js"></script>
+  <script src="/config/config.js"></script>
+  <script src="/config/site.js"></script>
+  <script src="/js/staging.js"></script>
+  <script type="module" src="/js/tenant.js"></script>
+  <script type="module" src="/js/vehicles.js"></script>
+  <script type="module" src="/js/main.js"></script>
+  <script type="module" src="/js/admin.js"></script>
+
+</body>
+</html>

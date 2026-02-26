@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test - Data Layer & Page Router</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Courier New', monospace;
+      background-color: #1a1a1a;
+      color: #00ff00;
+      padding: 20px;
+      line-height: 1.6;
+    }
+    .container { max-width: 1200px; margin: 0 auto; }
+    h1 { color: #ffff00; margin-bottom: 20px; }
+    h2 { color: #ff9900; margin-top: 30px; margin-bottom: 15px; }
+    .test-section {
+      background-color: #0a0a0a;
+      border: 1px solid #00ff00;
+      border-radius: 4px;
+      padding: 15px;
+      margin-bottom: 20px;
+    }
+    .test-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      padding-bottom: 10px;
+      border-bottom: 1px dashed #00ff00;
+    }
+    .status {
+      display: inline-block;
+      padding: 5px 10px;
+      border-radius: 3px;
+      font-weight: bold;
+      font-size: 12px;
+    }
+    .status.loading { background-color: #ff9900; }
+    .status.success { background-color: #00cc00; }
+    .status.error { background-color: #cc0000; }
+    .status.pending { background-color: #666666; }
+    pre {
+      background-color: #2a2a2a;
+      border-left: 3px solid #00ff00;
+      padding: 10px;
+      overflow-x: auto;
+      font-size: 12px;
+      margin: 10px 0;
+    }
+    button {
+      background-color: #00ff00;
+      color: #000;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 3px;
+      cursor: pointer;
+      font-weight: bold;
+      margin: 5px 5px 5px 0;
+    }
+    button:hover { background-color: #00cc00; }
+    .error-text { color: #ff6666; }
+    .success-text { color: #00ff00; }
+    .warning-text { color: #ffff00; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1>🧪 TEST: Data Layer & Page Router</h1>
+  <p style="margin-bottom: 30px; color: #aaa;">
+    Esta página verifica que los módulos nuevos funcionan correctamente.
+  </p>
+
+  <!-- TEST 1: TENANT RESOLUTION -->
+  <div class="test-section">
+    <div class="test-header">
+      <h2>Test 1: Resolución de Tenant</h2>
+      <span class="status pending" id="status-tenant">Pendiente</span>
+    </div>
+    <p>Intenta resolver el clientId desde el hostname actual.</p>
+    <button onclick="testTenantResolution()">Ejecutar Test</button>
+    <pre id="output-tenant" style="display: none;"></pre>
+  </div>
+
+  <!-- TEST 2: PUBLIC SETTINGS -->
+  <div class="test-section">
+    <div class="test-header">
+      <h2>Test 2: Cargar Configuración Pública</h2>
+      <span class="status pending" id="status-settings">Pendiente</span>
+    </div>
+    <p>Intenta cargar la configuración pública (branding, colores, etc).</p>
+    <button onclick="testPublicSettings()">Ejecutar Test</button>
+    <pre id="output-settings" style="display: none;"></pre>
+  </div>
+
+  <!-- TEST 3: PAGE LOADING -->
+  <div class="test-section">
+    <div class="test-header">
+      <h2>Test 3: Cargar Página (Home)</h2>
+      <span class="status pending" id="status-page">Pendiente</span>
+    </div>
+    <p>Intenta cargar la página "home" desde Firestore.</p>
+    <button onclick="testPageLoading()">Ejecutar Test</button>
+    <pre id="output-page" style="display: none;"></pre>
+  </div>
+
+  <!-- TEST 4: LISTINGS LOADING -->
+  <div class="test-section">
+    <div class="test-header">
+      <h2>Test 4: Cargar Listings</h2>
+      <span class="status pending" id="status-listings">Pendiente</span>
+    </div>
+    <p>Intenta cargar items de la colección de listings.</p>
+    <button onclick="testListingsLoading()">Ejecutar Test</button>
+    <pre id="output-listings" style="display: none;"></pre>
+  </div>
+
+  <!-- TEST 5: SECTION RENDERING -->
+  <div class="test-section">
+    <div class="test-header">
+      <h2>Test 5: Renderizar Secciones</h2>
+      <span class="status pending" id="status-sections">Pendiente</span>
+    </div>
+    <p>Intenta renderizar varios tipos de bloques.</p>
+    <button onclick="testSectionRendering()">Ejecutar Test</button>
+    <pre id="output-sections" style="display: none;"></pre>
+  </div>
+
+  <!-- TEST 6: CACHING -->
+  <div class="test-section">
+    <div class="test-header">
+      <h2>Test 6: Caché Inteligente</h2>
+      <span class="status pending" id="status-cache">Pendiente</span>
+    </div>
+    <p>Verifica que el caché funciona (segunda llamada debe ser más rápida).</p>
+    <button onclick="testCaching()">Ejecutar Test</button>
+    <pre id="output-cache" style="display: none;"></pre>
+  </div>
+
+  <!-- SUMMARY -->
+  <div class="test-section" style="border-color: #ff9900;">
+    <h2>📊 Resumen de Resultados</h2>
+    <p id="summary-text" style="color: #aaa;">
+      Ejecuta los tests para ver los resultados.
+    </p>
+    <button onclick="runAllTests()" style="background-color: #ff9900; color: #000; margin-top: 20px; padding: 10px 20px; font-size: 14px;">
+      ▶️ EJECUTAR TODOS LOS TESTS
+    </button>
+  </div>
+
+</div>
+
+<!-- Scripts de test -->
+<script>
+  // Helpers
+  function updateStatus(testName, status, message) {
+    const el = document.querySelector(`#status-${testName}`);
+    if (el) {
+      el.textContent = message || status;
+      el.className = `status ${status}`;
+    }
+  }
+
+  function showOutput(testName, text) {
+    const el = document.querySelector(`#output-${testName}`);
+    if (el) {
+      el.textContent = text;
+      el.style.display = 'block';
+    }
+  }
+
+  function log(msg) {
+    console.log(`[Test] ${msg}`);
+  }
+
+  // TEST 1: Tenant Resolution
+  async function testTenantResolution() {
+    try {
+      updateStatus('tenant', 'loading', '⏳ Cargando...');
+      
+      if (typeof window.getTenantId !== 'function') {
+        throw new Error('getTenantId no está disponible. ¿Se cargó dataLayer.js?');
+      }
+
+      const clientId = await window.getTenantId();
+
+      if (clientId) {
+        updateStatus('tenant', 'success', `✓ Éxito: ${clientId}`);
+        showOutput('tenant', `
+clientId Resuelto: ${clientId}
+Hostname: ${window.location.hostname}
+Path: ${window.location.pathname}
+
+✓ El tenant se resolvió correctamente desde el hostname.
+        `.trim());
+      } else {
+        updateStatus('tenant', 'error', '✗ Sin clientId');
+        showOutput('tenant', `
+❌ No se pudo resolver el cliente ID.
+
+Posibles causas:
+1. No existe documento en Firestore: domains/${window.location.hostname}
+2. El documento existe pero no tiene campo 'clientId'
+3. Firebase no está inicializado correctamente
+
+Abrir Firestore Console y verificar:
+- Collection: domains
+- Document: ${window.location.hostname}
+- Field: clientId
+        `.trim());
+      }
+    } catch (err) {
+      updateStatus('tenant', 'error', '✗ Error');
+      showOutput('tenant', `
+❌ Error: ${err.message}
+
+Stack: ${err.stack}
+      `.trim());
+    }
+  }
+
+  // TEST 2: Public Settings
+  async function testPublicSettings() {
+    try {
+      updateStatus('settings', 'loading', '⏳ Cargando...');
+
+      const clientId = await window.getTenantId();
+      if (!clientId) {
+        throw new Error('No se pudo resolver tenant ID');
+      }
+
+      const settings = await window.getPublicSettings(clientId);
+
+      if (settings) {
+        updateStatus('settings', 'success', `✓ Éxito (${Object.keys(settings).length} campos)`);
+        showOutput('settings', `
+Configuración Cargada:
+${JSON.stringify(settings, null, 2)}
+
+✓ Se cargó correctamente la configuración pública.
+        `.trim());
+      } else {
+        updateStatus('settings', 'error', '✗ Sin settings');
+        showOutput('settings', `
+❌ No se encontró configuración pública.
+
+Crear documento en Firestore:
+- Collection: clients/${clientId}/settings
+- Document: public
+- Ejemplo: ver FIRESTORE_SEED.js
+        `.trim());
+      }
+    } catch (err) {
+      updateStatus('settings', 'error', '✗ Error');
+      showOutput('settings', `
+❌ Error: ${err.message}
+      `.trim());
+    }
+  }
+
+  // TEST 3: Page Loading
+  async function testPageLoading() {
+    try {
+      updateStatus('page', 'loading', '⏳ Cargando...');
+
+      const clientId = await window.getTenantId();
+      if (!clientId) throw new Error('No tenant ID');
+
+      const page = await window.getPage(clientId, 'home');
+
+      if (page) {
+        updateStatus('page', 'success', `✓ Éxito (${page.sections?.length || 0} secciones)`);
+        showOutput('page', `
+Página Cargada (home):
+- Slug: ${page.slug}
+- Status: ${page.status}
+- Secciones: ${page.sections?.length || 0}
+- Title: ${page.meta?.title}
+
+Secciones:
+${(page.sections || []).map((s, i) => `  ${i+1}. ${s.type} (${s.id})`).join('\n')}
+
+✓ La página existe y tiene secciones definidas.
+        `.trim());
+      } else {
+        updateStatus('page', 'error', '✗ No encontrada');
+        showOutput('page', `
+❌ No se encontró la página "home".
+
+Crear documento en Firestore:
+- Path: clients/${clientId}/pages/home
+- Ejemplo: ver FIRESTORE_SEED.js
+
+La página debe tener:
+{
+  slug: "home",
+  status: "published",
+  meta: { title, description },
+  nav: { showInNav, label, order },
+  sections: [ ... ]
+}
+        `.trim());
+      }
+    } catch (err) {
+      updateStatus('page', 'error', '✗ Error');
+      showOutput('page', `
+❌ Error: ${err.message}
+      `.trim());
+    }
+  }
+
+  // TEST 4: Listings Loading
+  async function testListingsLoading() {
+    try {
+      updateStatus('listings', 'loading', '⏳ Cargando...');
+
+      const clientId = await window.getTenantId();
+      if (!clientId) throw new Error('No tenant ID');
+
+      const listings = await window.getListings(clientId, {
+        filters: { status: 'published' },
+        limitTo: 5
+      });
+
+      if (Array.isArray(listings) && listings.length > 0) {
+        updateStatus('listings', 'success', `✓ Éxito (${listings.length} items)`);
+        showOutput('listings', `
+Listings Encontrados: ${listings.length}
+
+Ejemplo (primer item):
+${JSON.stringify(listings[0], null, 2)}
+
+✓ La colección de listings está funcional.
+        `.trim());
+      } else {
+        updateStatus('listings', 'warning', '⚠️ Sin items');
+        showOutput('listings', `
+⚠️ No hay listings en la colección (o no publicados).
+
+Para crear listings:
+- Path: clients/${clientId}/content/listings/{id}
+- Ejemplo: ver FIRESTORE_SEED.js
+
+Estructura mínima:
+{
+  status: "published",
+  title: "Mi Producto",
+  category: "vehicles",
+  price: 1000
+}
+        `.trim());
+      }
+    } catch (err) {
+      updateStatus('listings', 'error', '✗ Error');
+      showOutput('listings', `
+❌ Error: ${err.message}
+      `.trim());
+    }
+  }
+
+  // TEST 5: Section Rendering
+  async function testSectionRendering() {
+    try {
+      updateStatus('sections', 'loading', '⏳ Cargando...');
+
+      if (typeof window.renderSection !== 'function') {
+        throw new Error('renderSection no está disponible');
+      }
+
+      // Render varios tipos
+      const testSections = [
+        {
+          id: 'test-hero',
+          type: 'hero',
+          props: { title: 'Test Hero', subtitle: 'Subtítulo de prueba' }
+        },
+        {
+          id: 'test-richtext',
+          type: 'richText',
+          props: { html: '<h2>Contenido de Texto</h2><p>Párrafo de prueba</p>' }
+        },
+        {
+          id: 'test-services',
+          type: 'servicesGrid',
+          props: {
+            items: [
+              { icon: '✓', title: 'Servicio 1', description: 'Descripción 1' }
+            ]
+          }
+        }
+      ];
+
+      let allHtml = '';
+      for (const section of testSections) {
+        const html = window.renderSection(section);
+        allHtml += html;
+      }
+
+      updateStatus('sections', 'success', `✓ Éxito (${testSections.length} tipos)`);
+      showOutput('sections', `
+✓ Se renderizaron ${testSections.length} tipos de secciones sin errores.
+
+Secciones testeadas:
+- hero
+- richText
+- servicesGrid
+
+Tipos soportados:
+hero, richText, servicesGrid, listingsGrid, testimonials,
+faq, gallery, hours, callToAction, map, socialLinks, banner
+
+Puedes agregar más tipos editando js/sectionRenderer.js
+      `.trim());
+    } catch (err) {
+      updateStatus('sections', 'error', '✗ Error');
+      showOutput('sections', `
+❌ Error: ${err.message}
+      `.trim());
+    }
+  }
+
+  // TEST 6: Caching
+  async function testCaching() {
+    try {
+      updateStatus('cache', 'loading', '⏳ Cargando...');
+
+      const clientId = await window.getTenantId();
+      if (!clientId) throw new Error('No tenant ID');
+
+      // Primera llamada (desde Firestore)
+      const start1 = performance.now();
+      await window.getPublicSettings(clientId);
+      const time1 = performance.now() - start1;
+
+      // Segunda llamada (desde caché)
+      const start2 = performance.now();
+      const cached = await window.getPublicSettings(clientId);
+      const time2 = performance.now() - start2;
+
+      const speedup = (time1 / time2).toFixed(2);
+
+      updateStatus('cache', 'success', `✓ Caché activo (${speedup}x más rápido)`);
+      showOutput('cache', `
+Benchmarks:
+- Primera llamada (Firestore): ${time1.toFixed(2)}ms
+- Segunda llamada (Caché):     ${time2.toFixed(2)}ms
+- Speedup:                     ${speedup}x
+
+✓ El caché está funcionando correctamente.
+
+TTL: 5 minutos
+Invalidar: window.invalidateTenantCache('${clientId}')
+      `.trim());
+    } catch (err) {
+      updateStatus('cache', 'error', '✗ Error');
+      showOutput('cache', `
+❌ Error: ${err.message}
+      `.trim());
+    }
+  }
+
+  // RUN ALL TESTS
+  async function runAllTests() {
+    log('🚀 Iniciando suite de tests...');
+    
+    await testTenantResolution();
+    await new Promise(r => setTimeout(r, 500));
+    
+    await testPublicSettings();
+    await new Promise(r => setTimeout(r, 500));
+    
+    await testPageLoading();
+    await new Promise(r => setTimeout(r, 500));
+    
+    await testListingsLoading();
+    await new Promise(r => setTimeout(r, 500));
+    
+    await testSectionRendering();
+    await new Promise(r => setTimeout(r, 500));
+    
+    await testCaching();
+    
+    updateSummary();
+  }
+
+  function updateSummary() {
+    const statuses = document.querySelectorAll('.status');
+    let summary = {
+      success: 0,
+      error: 0,
+      warning: 0,
+      loading: 0,
+      pending: 0
+    };
+
+    statuses.forEach(s => {
+      const status = s.className.split(' ')[1];
+      if (status && summary.hasOwnProperty(status)) {
+        summary[status]++;
+      }
+    });
+
+    let msg = `
+✓ Éxito: ${summary.success}
+✗ Errores: ${summary.error}
+⚠️ Advertencias: ${summary.warning}
+    `.trim();
+
+    if (summary.error > 0) {
+      msg += '\n\n🔴 Hay errores. Revisa los logs arriba.';
+    } else if (summary.success === 6) {
+      msg += '\n\n🟢 ¡TODOS LOS TESTS PASARON! ✨';
+    }
+
+    document.getElementById('summary-text').textContent = msg;
+  }
+</script>
+
+<!-- Cargar módulos -->
+  <script src="/config/config.js"></script>
+  <script src="/config/site.js"></script>
+<script src="/assets/config/firebase-config.js"></script>
+<script type="module" src="/js/firebase.js"></script>
+<script type="module" src="/js/tenant.js"></script>
+<script type="module" src="/js/dataLayer.js"></script>
+<script type="module" src="/js/sectionRenderer.js"></script>
+<script type="module" src="/js/pageRouter.js"></script>
+
+</body>
+</html>

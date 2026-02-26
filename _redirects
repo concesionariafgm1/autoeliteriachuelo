@@ -1,0 +1,21 @@
+# ============================================
+# CLOUDFLARE PAGES - Redirects Configuration
+# URLs amigables, sin extensiones .html
+# ============================================
+
+# NO reescribir archivos estáticos
+/css/*             /css/:splat              200
+/assets/*          /assets/:splat           200
+/js/*              /js/:splat               200
+/config/*          /config/:splat           200
+
+# Redirigir URLs con .html a URLs sin extensión (301)
+/admin.html        /admin          301
+/contacto.html     /contacto       301
+/login.html        /login          301
+/nosotros.html     /nosotros       301
+/vehiculos.html    /vehiculos      301
+/offline.html      /offline        301
+
+# Servir .html cuando acceden sin extensión
+/*                 /:splat.html    200

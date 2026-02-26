@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Admin Builder | Página Editor</title>
+  <link rel="stylesheet" href="/css/style.css">
+  
+  <style>
+    /* ============================================
+       ADMIN BUILDER STYLES
+       ============================================ */
+    
+    :root {
+      --sidebar-width: 280px;
+      --inspector-width: 320px;
+      --header-height: 60px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #0a0a0a;
+      color: #fff;
+      overflow: hidden;
+      height: 100vh;
+    }
+
+    /* ============================================
+       HEADER (Files, Actions, Status)
+       ============================================ */
+    
+    #adminHeader {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: var(--header-height);
+      background: rgba(0, 0, 0, 0.8);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      gap: 20px;
+      z-index: 100;
+      backdrop-filter: blur(10px);
+    }
+
+    .admin-logo {
+      font-size: 14px;
+      font-weight: bold;
+      color: #E50914;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+
+    .admin-toolbar {
+      display: flex;
+      gap: 15px;
+      margin-left: auto;
+      align-items: center;
+    }
+
+    .admin-button {
+      padding: 8px 16px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: transparent;
+      color: #fff;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 13px;
+      transition: all 0.2s;
+    }
+
+    .admin-button:hover {
+      background: rgba(229, 9, 20, 0.1);
+      border-color: #E50914;
+    }
+
+    .admin-button.primary {
+      background: #E50914;
+      border-color: #E50914;
+    }
+
+    .admin-button.primary:hover {
+      background: #c00;
+    }
+
+    .admin-button.success {
+      background: rgba(76, 175, 80, 0.2);
+      border-color: #4CAF50;
+      color: #4CAF50;
+    }
+
+    .admin-button.success:hover {
+      background: rgba(76, 175, 80, 0.3);
+    }
+
+    .status-indicator {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: #999;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #4CAF50;
+    }
+
+    .status-dot.draft { background: #FFC107; }
+    .status-dot.error { background: #f44336; }
+
+    /* ============================================
+       LAYOUT: Sidebar + Preview + Inspector
+       ============================================ */
+    
+    #adminContainer {
+      position: fixed;
+      top: var(--header-height);
+      left: 0;
+      right: 0;
+      bottom: 0;
+      display: grid;
+      grid-template-columns: var(--sidebar-width) 1fr var(--inspector-width);
+      gap: 0;
+    }
+
+    /* SIDEBAR LEFT: Sections List */
+    #sidebarLeft {
+      background: rgba(20, 20, 20, 0.8);
+      border-right: 1px solid rgba(255, 255, 255, 0.1);
+      overflow-y: auto;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .sidebar-section-title {
+      font-size: 12px;
+      text-transform: uppercase;
+      color: #999;
+      letter-spacing: 1px;
+      margin-bottom: 10px;
+    }
+
+    .sections-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .section-item {
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+    }
+
+    .section-item:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(229, 9, 20, 0.3);
+    }
+
+    .section-item.selected {
+      background: rgba(229, 9, 20, 0.2);
+      border-color: #E50914;
+    }
+
+    .section-item-icon {
+      width: 20px;
+      height: 20px;
+      background: rgba(229, 9, 20, 0.3);
+      border-radius: 3px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      flex-shrink: 0;
+    }
+
+    .section-item-drag {
+      cursor: grab;
+      color: #666;
+    }
+
+    .section-item-drag:active {
+      cursor: grabbing;
+    }
+
+    .add-section-button {
+      padding: 10px;
+      background: rgba(229, 9, 20, 0.2);
+      border: 1px dashed #E50914;
+      color: #E50914;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 13px;
+      transition: all 0.2s;
+    }
+
+    .add-section-button:hover {
+      background: rgba(229, 9, 20, 0.3);
+    }
+
+    /* CENTER: Preview */
+    #previewContainer {
+      background: #1a1a1a;
+      border-right: 1px solid rgba(255, 255, 255, 0.1);
+      overflow: auto;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .preview-toolbar {
+      display: flex;
+      gap: 10px;
+      padding: 15px;
+      background: rgba(0, 0, 0, 0.4);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      font-size: 12px;
+    }
+
+    .device-buttons {
+      display: flex;
+      gap: 5px;
+    }
+
+    .device-button {
+      padding: 6px 12px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #999;
+      cursor: pointer;
+      border-radius: 3px;
+      font-size: 11px;
+      transition: all 0.2s;
+    }
+
+    .device-button.active {
+      background: #E50914;
+      color: #fff;
+      border-color: #E50914;
+    }
+
+    #pagePreview {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+    }
+
+    .preview-frame {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+      margin: 0 auto;
+      min-height: 100%;
+    }
+
+    .preview-frame.desktop {
+      width: 100%;
+      max-width: 1200px;
+    }
+
+    .preview-frame.tablet {
+      width: 768px;
+    }
+
+    .preview-frame.mobile {
+      width: 375px;
+    }
+
+    .preview-content {
+      background: #fff;
+      color: #000;
+      padding: 20px;
+    }
+
+    /* SIDEBAR RIGHT: Inspector (Propiedades) */
+    #sidebarRight {
+      background: rgba(20, 20, 20, 0.8);
+      border-left: 1px solid rgba(255, 255, 255, 0.1);
+      overflow-y: auto;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .inspector-title {
+      font-size: 12px;
+      text-transform: uppercase;
+      color: #999;
+      letter-spacing: 1px;
+    }
+
+    .inspector-form {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-group label {
+      font-size: 12px;
+      color: #ccc;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      padding: 8px 12px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #fff;
+      border-radius: 4px;
+      font-size: 13px;
+      font-family: inherit;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: #E50914;
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .form-group textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .input-hint {
+      font-size: 11px;
+      color: #666;
+      margin-top: 4px;
+    }
+
+    /* Empty State */
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      color: #666;
+      text-align: center;
+      padding: 40px 20px;
+    }
+
+    .empty-state-icon {
+      font-size: 48px;
+      margin-bottom: 15px;
+      opacity: 0.5;
+    }
+
+    .empty-state-text {
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    /* Modals */
+    dialog {
+      background: rgba(20, 20, 20, 0.95);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      backdrop-filter: blur(10px);
+      padding: 0;
+      max-width: 500px;
+    }
+
+    dialog::backdrop {
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(5px);
+    }
+
+    .modal-header {
+      padding: 20px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-header h2 {
+      font-size: 16px;
+      margin: 0;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      color: #999;
+      font-size: 24px;
+      cursor: pointer;
+    }
+
+    .modal-body {
+      padding: 20px;
+      max-height: 60vh;
+      overflow-y: auto;
+    }
+
+    .modal-footer {
+      padding: 20px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+    }
+
+    /* Scrollbars */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ============================================
+       HEADER
+       ============================================ -->
+  <header id="adminHeader">
+    <div class="admin-logo">🛠️ Builder</div>
+    
+    <select id="pageSelect" style="padding: 8px 12px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; color: #fff; cursor: pointer;">
+      <option>-- Seleccionar página --</option>
+      <!-- Se llena dinámicamente -->
+    </select>
+
+    <div class="admin-toolbar">
+      <div class="status-indicator">
+        <span class="status-dot active" id="statusDot"></span>
+        <span id="statusText">draft</span>
+      </div>
+
+      <button id="saveBtn" class="admin-button">💾 Guardar Draft</button>
+      <button id="publishBtn" class="admin-button primary">📤 Publicar</button>
+      <button id="previewBtn" class="admin-button">👁️ Preview</button>
+      <button id="settingsBtn" class="admin-button">⚙️ Settings</button>
+    </div>
+  </header>
+
+  <!-- ============================================
+       MAIN GRID LAYOUT
+       ============================================ -->
+  <div id="adminContainer">
+
+    <!-- LEFT SIDEBAR: Sections List -->
+    <aside id="sidebarLeft">
+      <div class="sidebar-section-title">Secciones</div>
+      <ul class="sections-list" id="sectionsList">
+        <!-- Se llena dinámicamente -->
+      </ul>
+      
+      <button class="add-section-button" onclick="openAddSectionModal()">
+        ➕ Agregar Sección
+      </button>
+    </aside>
+
+    <!-- CENTER: Preview -->
+    <main id="previewContainer">
+      <div class="preview-toolbar">
+        <div class="device-buttons">
+          <button class="device-button active" data-device="desktop">🖥️ Desktop</button>
+          <button class="device-button" data-device="tablet">📱 Tablet</button>
+          <button class="device-button" data-device="mobile">📲 Mobile</button>
+        </div>
+      </div>
+      
+      <div id="pagePreview">
+        <div id="previewFrame" class="preview-frame desktop">
+          <div class="preview-content" id="previewContent">
+            <div class="empty-state">
+              <div class="empty-state-icon">📄</div>
+              <div class="empty-state-text">Selecciona una página para comenzar a editar</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- RIGHT SIDEBAR: Inspector (Propiedades de Sección Seleccionada) -->
+    <aside id="sidebarRight">
+      <div class="inspector-title">Inspector</div>
+      <div id="inspectorContent">
+        <div class="empty-state">
+          <div class="empty-state-icon">✨</div>
+          <div class="empty-state-text">Selecciona una sección para editar sus propiedades</div>
+        </div>
+      </div>
+    </aside>
+
+  </div>
+
+  <!-- ============================================
+       MODALS
+       ============================================ -->
+
+  <!-- Modal: Agregar Sección -->
+  <dialog id="addSectionModal">
+    <div class="modal-header">
+      <h2>Agregar Sección</h2>
+      <button class="modal-close" onclick="document.querySelector('#addSectionModal').close()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Tipo de Sección</label>
+        <select id="blockTypeSelect" style="padding: 8px 12px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; color: #fff; cursor: pointer;">
+          <option value="">-- Seleccionar tipo --</option>
+          <option value="hero">Hero Banner</option>
+          <option value="richText">Texto Rico</option>
+          <option value="listingsGrid">Grid de Productos</option>
+          <option value="contactForm">Formulario</option>
+          <option value="testimonials">Testimonios</option>
+          <option value="faq">FAQ</option>
+          <!-- La lista se amplía con blockRegistry -->
+        </select>
+      </div>
+      <div class="input-hint">Elige el tipo de contenido que quieres agregar</div>
+    </div>
+    <div class="modal-footer">
+      <button class="admin-button" onclick="document.querySelector('#addSectionModal').close()">Cancelar</button>
+      <button class="admin-button primary" onclick="confirmAddSection()">Agregar</button>
+    </div>
+  </dialog>
+
+  <!-- Modal: Page Settings -->
+  <dialog id="pageSettingsModal">
+    <div class="modal-header">
+      <h2>Configuración de Página</h2>
+      <button class="modal-close" onclick="document.querySelector('#pageSettingsModal').close()">✕</button>
+    </div>
+    <div class="modal-body">
+      <form id="pageSettingsForm">
+        <div class="form-group">
+          <label>Slug (URL)</label>
+          <input type="text" id="pageSlug" placeholder="ej: productos" readonly>
+          <div class="input-hint">No se puede cambiar después de crear</div>
+        </div>
+        
+        <div class="form-group">
+          <label>Título (SEO)</label>
+          <input type="text" id="pageTitle" placeholder="Título de página">
+        </div>
+
+        <div class="form-group">
+          <label>Descripción (SEO)</label>
+          <textarea id="pageDescription" placeholder=\"Descripción breve para buscadores (160 chars)\"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Etiqueta en Menú</label>
+          <input type=\"text\" id=\"pageNavLabel\" placeholder=\"Ej: Productos\">
+        </div>
+
+        <div class=\"form-group\">
+          <label>
+            <input type=\"checkbox\" id=\"pageShowInNav\"> Mostrar en navegación
+          </label>
+        </div>
+
+        <div class=\"form-group\">
+          <label>Orden en Menú</label>
+          <input type=\"number\" id=\"pageNavOrder\" min=\"1\" value=\"1\">
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="admin-button" onclick="document.querySelector('#pageSettingsModal').close()">Cancelar</button>
+      <button class="admin-button primary" onclick="savePageSettings()">Guardar</button>
+    </div>
+  </dialog>
+
+  <!-- ============================================
+       SCRIPTS
+       ============================================ -->
+  <script type="module">
+    import { getTenantId, getPublicSettings, getPage, savePage } from "./js/dataLayer.js";
+    import { renderSection } from "./js/sectionRenderer.js";
+    import { generateFormForBlock, getAvailableBlocks } from "./js/formBuilder.js";
+    import { initAuthListener, authState } from "./js/auth.js";
+
+    // ============================================
+    // INIT
+    // ============================================
+    
+    window.currentPage = null;
+    window.currentClientId = null;
+    window.selectedSectionId = null;
+    window.isDirty = false;
+
+    initAuthListener({
+      requireAdmin: true,
+      onUnauthorized: () => {
+        window.location.href = '/login.html';
+      },
+      onReady: async (auth) => {
+        window.currentClientId = auth.clientId;
+        await loadPages();
+      }
+    });
+
+    // ============================================
+    // PAGE LOADING
+    // ============================================
+
+    async function loadPages() {
+      // TODO: Cargar lista de páginas del tenant
+      const select = document.querySelector('#pageSelect');
+      // select.innerHTML = paginas...
+    }
+
+    async function loadPage(slug) {
+      const page = await getPage(window.currentClientId, slug);
+      window.currentPage = page;
+      window.isDirty = false;
+      
+      renderPagePreview();
+      updateSectionsList();
+      updatePageSettings();
+    }
+
+    // ============================================
+    // PREVIEW RENDERING
+    // ============================================
+
+    function renderPagePreview() {
+      const content = document.querySelector('#previewContent');
+      if (!window.currentPage || !window.currentPage.sections) {
+        content.innerHTML = '<div class=\"empty-state\"><div class=\"empty-state-icon\">👻</div><div>Sin secciones</div></div>';
+        return;
+      }
+
+      content.innerHTML = window.currentPage.sections
+        .map(section => renderSection(section, window.currentClientId))
+        .join('');
+    }
+
+    // ============================================
+    // SECTIONS MANAGEMENT
+    // ============================================
+
+    function updateSectionsList() {
+      const list = document.querySelector('#sectionsList');
+      if (!window.currentPage || !window.currentPage.sections) {
+        list.innerHTML = '';
+        return;
+      }
+
+      list.innerHTML = window.currentPage.sections.map(section => `
+        <li class=\"section-item\" data-section-id=\"${section.id}\" onclick=\"selectSection('${section.id}')\">
+          <span class=\"section-item-drag\">⋮⋮</span>
+          <div class=\"section-item-icon\">📦</div>
+          <span>${section.type}</span>
+        </li>
+      `).join('');
+    }
+
+    window.selectSection = function(sectionId) {
+      document.querySelectorAll('.section-item').forEach(el => el.classList.remove('selected'));
+      document.querySelector(`[data-section-id=\"${sectionId}\"]`).classList.add('selected');
+      window.selectedSectionId = sectionId;
+      updateInspector(sectionId);
+    };
+
+    function updateInspector(sectionId) {
+      const section = window.currentPage.sections.find(s => s.id === sectionId);
+      const inspector = document.querySelector('#inspectorContent');
+      
+      if (!section) return;
+      
+      // TODO: Generar form dinámico según tipo de bloque
+      inspector.innerHTML = `<p>Inspector para: ${section.type}</p>`;
+    }
+
+    // ============================================
+    // SAVE & PUBLISH
+    // ============================================
+
+    window.savePageDraft = async function() {
+      if (!window.currentPage) return;
+      
+      try {
+        await savePage(window.currentClientId, window.currentPage);
+        window.isDirty = false;
+        alert('✓ Draft guardado');
+      } catch (err) {
+        alert('✗ Error: ' + err.message);
+      }
+    };
+
+    window.publishPage = async function() {
+      if (!window.currentPage) return;
+      
+      window.currentPage.status = 'published';
+      try {
+        await savePage(window.currentClientId, window.currentPage);
+        alert('✓ Página publicada');
+      } catch (err) {
+        alert('✗ Error: ' + err.message);
+      }
+    };
+
+    // ============================================
+    // MODAL HANDLERS
+    // ============================================
+
+    window.openAddSectionModal = function() {
+      document.querySelector('#addSectionModal').showModal();
+    };
+
+    window.confirmAddSection = function() {
+      const type = document.querySelector('#blockTypeSelect').value;
+      if (!type) return alert('Selecciona un tipo');
+
+      const newSection = {
+        id: `section-${Date.now()}`,
+        type: type,
+        props: {}
+      };
+
+      window.currentPage.sections.push(newSection);
+      window.isDirty = true;
+      
+      renderPagePreview();
+      updateSectionsList();
+      document.querySelector('#addSectionModal').close();
+    };
+
+    // Wire up buttons
+    document.querySelector('#saveBtn').onclick = () => savePageDraft();
+    document.querySelector('#publishBtn').onclick = () => publishPage();
+    document.querySelector('#settingsBtn').onclick = () => document.querySelector('#pageSettingsModal').showModal();
+  </script>
+
+</body>
+</html>

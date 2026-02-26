@@ -1,0 +1,35 @@
+# ============================================
+# CLOUDFLARE PAGES - Headers Configuration
+# Cache, seguridad, compresión
+# ============================================
+
+# Headers por defecto para todo
+/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: SAMEORIGIN
+  X-XSS-Protection: 1; mode=block
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), payment=()
+
+# Cache para imágenes (30 días)
+/assets/images/*
+  Cache-Control: public, max-age=2592000, immutable
+
+# Cache para CSS y JS (7 días)
+/css/*
+  Cache-Control: public, max-age=604800
+/js/*
+  Cache-Control: public, max-age=604800
+
+# Cache para fuentes (30 días)
+/assets/fonts/*
+  Cache-Control: public, max-age=2592000, immutable
+
+# HTML: siempre verificar en servidor (1 día)
+/*.html
+  Cache-Control: public, max-age=86400, must-revalidate
+
+# Manifest (1 día)
+/manifest.json
+  Cache-Control: public, max-age=86400
+  Content-Type: application/manifest+json
